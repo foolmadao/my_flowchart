@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
     type: 'dot',
     scope: '',
     parameters: { radius: 5},
-    paintStyle: {  fill: 'black' },
+    paintStyle: {  fill: '#ccc' },
     connectorStyle: {stroke: 'black', strokeWidth: 4 },
     connectorOverlays: ['Arrow' as OverlayId],
   };
@@ -66,6 +66,29 @@ export class AppComponent implements OnInit {
     }, 0);
   }
 
+  deleteFlow(id: string) {
+    const index = this.dropItems.findIndex(item => item.data === id);
+    this.dropItems.splice(index, 1);
+    this.instance.getEndpoints(id).forEach(t => {
+      this.instance.deleteEndpoint(t);
+    });
+    this.deleteRelatedConnection(id);
+  }
+
+  deleteRelatedConnection(id: string) {
+    this.flowList.map((item, index) => {
+      if (item.name === id) {
+        this.flowList.splice(index, 1);
+      } else {
+        item.next.map((t, i) => {
+          if (t.name === id) {
+            item.next.splice(i, 1);
+          }
+        });
+      }
+    });
+  }
+
   findFlow(name: string) {
     const target = this.flowList.find(t => t.name === name);
     return target;
@@ -73,10 +96,7 @@ export class AppComponent implements OnInit {
 
   setFlowChart(id: string) {
     this.instance.draggable(id, {
-      containment: 'diagramContainer',
-      drag: res => {
-        res.el.style.left = parseInt(res.el.style.left, 10) - 50 + 'px';
-      }
+      containment: 'diagramContainer'
     });
     this.pointLocation.forEach(item => {
       const point = this.instance.addEndpoint(id, {...this.endPointParams, anchor: item, id}) as any;

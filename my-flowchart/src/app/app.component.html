@@ -12,14 +12,16 @@
           <button (click)="getDataFlow()"  nz-button nzType="primary" >运行</button>
           <ng-container *ngFor="let item of dropItems">
             <div class="drop-items" id = "{{item.data}}" [ngStyle]="{'left': item.event.offsetX + 'px', 'top': item.event.offsetY + 'px'}">
-              <p>{{item.data}}</p>
-              <div class="content">
-                1231231
-              </div>
-              <i nz-icon type="delete" theme="outline"></i>
+              <nz-card style="width:200px;" nzTitle="{{item.data}}" [nzExtra]="extraTemplate">
+                <p>Card content</p>
+                <p>Card content</p>
+              </nz-card>
             </div>
+            <ng-template #extraTemplate>
+              <a (click)="creatSettigModal()"><i nz-icon type="setting" theme="outline"></i></a>
+              <a (click)="deleteFlow(item.data)" style="margin-left: 5px;"><i nz-icon type="delete" theme="outline"></i></a>
+            </ng-template>
           </ng-container>
-          
         </div>
       </nz-content>
     </nz-layout>
