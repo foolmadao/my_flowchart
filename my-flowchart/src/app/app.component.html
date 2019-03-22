@@ -9,6 +9,7 @@
       </nz-sider>
       <nz-content>
         <div id="diagramContainer" dndDropzone (dndDrop)="onDrop($event)" style="height: 100%;width: 100%;">
+          <button (click)="getDataFlow()"  nz-button nzType="primary" >运行</button>
           <ng-container *ngFor="let item of dropItems">
             <div class="drop-items" id = "{{item.data}}" [ngStyle]="{'left': item.event.offsetX + 'px', 'top': item.event.offsetY + 'px'}">
               <p>{{item.data}}</p>

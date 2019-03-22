@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { jsPlumb, jsPlumbInstance, AnchorSpec, OverlayId, Connection } from 'jsplumb';
+import { FunctionFlow } from './component/functionChart';
+
 
 @Component({
   selector: 'app-root',
@@ -25,14 +27,16 @@ export class AppComponent implements OnInit {
   };
 
   functionList = [
-    'function1', 'function2', 'function3', 'function4', 'function5', 'function6', 'function7', 'function8'
+    'calculate data', 'function1', 'function2', 'function3', 'function4', 'function5', 'function6', 'function7', 'function8'
   ];
 
   functionInstanceList = { };
 
   dropItems = [];
 
-  constructor() {
+  flowList: FunctionFlow[] = [];
+  constructor(
+  ) {
   }
 
   ngOnInit(): void {
@@ -47,11 +51,24 @@ export class AppComponent implements OnInit {
         }
       );
       this.instance.setContainer('diagramContainer');
+      this.instance.bind('connection', (res) => {
+        const source = this.findFlow(res.sourceId);
+        const target = this.findFlow(res.targetId);
+        source.setNext(target);
+      });
       this.instance.bind('dblclick', (conn) => {
           this.instance.deleteConnection(conn);
+          const source = this.findFlow((conn as any).sourceId);
+          const target = this.findFlow((conn as any).targetId);
+          source.deleteNext(target);
         }
       );
     }, 0);
+  }
+
+  findFlow(name: string) {
+    const target = this.flowList.find(t => t.name === name);
+    return target;
   }
 
   setFlowChart(id: string) {
@@ -76,8 +93,14 @@ export class AppComponent implements OnInit {
     }
     event.data = event.data + '-' + this.functionInstanceList[event.data];
     this.dropItems.push(event);
+    this.flowList.push(new FunctionFlow(event.data));
     setTimeout(() => {
       this.setFlowChart(event.data);
     }, 0);
+  }
+
+  getDataFlow() {
+    console.log(this.findFlow('calculate data-1'));
+    return this.findFlow('calculate data-1');
   }
 }
