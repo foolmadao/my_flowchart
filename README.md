@@ -1,2 +1,2 @@
 # my_flowchart
-flow_cahrt
+flow_chart
