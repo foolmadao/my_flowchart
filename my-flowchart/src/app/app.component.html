@@ -7,9 +7,9 @@
         <div class="function" *ngFor="let function of functionList" [dndDraggable]="function"
            [dndEffectAllowed]="'all'">{{function}}</div>
       </nz-sider>
-      <nz-content>
-        <div id="diagramContainer" dndDropzone (dndDrop)="onDrop($event)" style="height: 100%;width: 100%;">
-          <button (click)="getDataFlow()"  nz-button nzType="primary" >运行</button>
+      <nz-content style="position:relative">
+        <div id="diagramContainer" dndDropzone (dndDrop)="onDrop($event)" style="height: 100%;width: 100%; position: absolute;">
+          <button (click)="getDataFlow()"  nz-button nzType="primary" style="z-index:10">运行</button>
           <ng-container *ngFor="let item of dropItems">
             <div class="drop-items" id = "{{item.data}}" [ngStyle]="{'left': item.event.offsetX + 'px', 'top': item.event.offsetY + 'px'}">
               <nz-card style="width:200px;" nzTitle="{{item.data}}" [nzExtra]="extraTemplate">
@@ -18,7 +18,7 @@
               </nz-card>
             </div>
             <ng-template #extraTemplate>
-              <a (click)="creatSettigModal()"><i nz-icon type="setting" theme="outline"></i></a>
+              <a (click)="creatSettigModal(item)"><i nz-icon type="setting" theme="outline"></i></a>
               <a (click)="deleteFlow(item.data)" style="margin-left: 5px;"><i nz-icon type="delete" theme="outline"></i></a>
             </ng-template>
           </ng-container>

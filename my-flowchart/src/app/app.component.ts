@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { jsPlumb, jsPlumbInstance, AnchorSpec, OverlayId, Connection } from 'jsplumb';
 import { FunctionFlow } from './component/functionChart';
+import { NzModalService } from 'ng-zorro-antd';
+import { SettingModalComponent } from './setting-modal/setting-modal.component';
 
 
 @Component({
@@ -35,7 +37,9 @@ export class AppComponent implements OnInit {
   dropItems = [];
 
   flowList: FunctionFlow[] = [];
+
   constructor(
+    private modalSrv: NzModalService
   ) {
   }
 
@@ -43,14 +47,14 @@ export class AppComponent implements OnInit {
     setTimeout(() => {
       this.instance = jsPlumb.getInstance(
         {
-          DragOptions: { cursor: 'pointer', zIndex: 2000 },
+          Container: 'diagramContainer',
+          DragOptions: { cursor: 'pointer', zIndex: 2000, containment: 'diagramContainer' },
           HoverPaintStyle: { stroke: '#7073EB' },
           EndpointHoverStyle: { fill: '#7073EB', strokeWidth: 10 },
           EndpointStyle: { fill: '#567567', strokeWidth: 2 },
           PaintStyle: { fill: '#567567', strokeWidth: 2}
         }
       );
-      this.instance.setContainer('diagramContainer');
       this.instance.bind('connection', (res) => {
         const source = this.findFlow(res.sourceId);
         const target = this.findFlow(res.targetId);
@@ -75,6 +79,37 @@ export class AppComponent implements OnInit {
     this.deleteRelatedConnection(id);
   }
 
+  creatSettigModal(item) {
+    console.log(item, this.flowList)
+    const modal = this.modalSrv.create({
+      nzTitle: '参数设置',
+      nzContent: SettingModalComponent,
+      nzComponentParams: {
+        type: 1,
+      },
+      nzFooter: [
+        {
+          label: '确认',
+          type: 'primary',
+          onClick: (componentInstance) => {
+            if (componentInstance) {
+              console.log(item)
+              const res = componentInstance.submit();
+              this.findFlow(item.data).setParams(res);
+              modal.destroy();
+            } else {
+              console.log('wrong');
+            }
+          }
+        },
+        {
+          label: '取消',
+          onClick: () => modal.destroy()
+        }
+      ]
+    });
+  }
+
   deleteRelatedConnection(id: string) {
     this.flowList.map((item, index) => {
       if (item.name === id) {
@@ -96,7 +131,10 @@ export class AppComponent implements OnInit {
 
   setFlowChart(id: string) {
     this.instance.draggable(id, {
-      containment: 'diagramContainer'
+      containment: 'diagramContainer',
+      cursor: 'pointer',
+      drag: (param) => {
+      }
     });
     this.pointLocation.forEach(item => {
       const point = this.instance.addEndpoint(id, {...this.endPointParams, anchor: item, id}) as any;
@@ -120,7 +158,12 @@ export class AppComponent implements OnInit {
   }
 
   getDataFlow() {
-    console.log(this.findFlow('calculate data-1'));
-    return this.findFlow('calculate data-1');
+    const dataFlow = this.findFlow('calculate data-1');
+    if (dataFlow && dataFlow.next.length > 0) {
+      console.log(dataFlow);
+      return dataFlow;
+    } else {
+      alert('数据要从data出发');
+    }
   }
 }
